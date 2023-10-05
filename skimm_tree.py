@@ -54,7 +54,20 @@ cat                = options.category
 if do_SR and do_CR :
     print("You should chose to signal region OR control region")
     exit()
-
+#define a function to find the highest prob for each event
+compareProb='''
+int compareProb(double ProbHHH,double ProbQCD,double ProbTT,double ProbVJets,double ProbVV){
+    if (ProbHHH>ProbQCD & ProbHHH>ProbTT & ProbHHH>ProbVJets & ProbHHH>ProbVV)
+        return 0;
+    else if (ProbQCD>ProbHHH & ProbQCD>ProbTT & ProbQCD>ProbVJets & ProbQCD>ProbVV)
+        return 1;
+    else if (ProbTT>ProbHHH & ProbTT>ProbQCD & ProbTT>ProbVJets & ProbTT>ProbVV)
+        return 2;
+    else
+        return 3;
+    }
+'''
+ROOT.gInterpreter.Declare(compareProb)
 selections = {
     #"final_selection_jetMultiplicity" : "(nbtags > 4 && nfatjets == 0) || (nbtags > 2 && nfatjets > 0)",
 
@@ -126,6 +139,73 @@ selections = {
         "dataset" : "resolved",
 
         },
+    
+    ##6L(excluded 6M)category
+    "gt5bloose_0PFfat_"              : {
+        "sel" : "(nloosebtags > 5 && nprobejets == 0 && nmediumbtags < 6)",
+        "label" : "Resolved 6L(exclude 6M)",
+        "doSR" : "&& (h_fit_mass > 80 && h_fit_mass < 150)",
+        "doCR" : "&& !(h_fit_mass > 80 && h_fit_mass < 150)",
+        "dataset" : "resolved",
+        },
+
+    ######multiclass categories
+    "gt5bloose_0PFfat_multiclass_HHH"              : {
+        "sel" : "(nloosebtags > 5 && nprobejets == 0 && nmediumbtags < 6 && compareProb(ProbHHH, ProbQCD, ProbTT, ProbVJets, ProbVV) == 0)",
+        "label" : "Resolved 6L(exclude 6M) HHH enriched",
+        "doSR" : "&& (h_fit_mass > 80 && h_fit_mass < 150)",
+        "doCR" : "&& !(h_fit_mass > 80 && h_fit_mass < 150)",
+        "dataset" : "resolved",
+        },
+    "gt5bloose_0PFfat_multiclass_QCD"              : {
+        "sel" : "(nloosebtags > 5 && nprobejets == 0 && nmediumbtags < 6 && compareProb(ProbHHH, ProbQCD, ProbTT, ProbVJets, ProbVV) == 1)",
+        "label" : "Resolved 6L(exclude 6M) QCD enriched",
+        "doSR" : "&& (h_fit_mass > 80 && h_fit_mass < 150)",
+        "doCR" : "&& !(h_fit_mass > 80 && h_fit_mass < 150)",
+        "dataset" : "resolved",
+        },
+    "gt5bloose_0PFfat_multiclass_TT"               : {
+        "sel" : "(nloosebtags > 5 && nprobejets == 0 && nmediumbtags < 6 && compareProb(ProbHHH, ProbQCD, ProbTT, ProbVJets, ProbVV) == 2)",
+        "label" : "Resolved 6L(exclude 6M) TT enriched",
+        "doSR" : "&& (h_fit_mass > 80 && h_fit_mass < 150)",
+        "doCR" : "&& !(h_fit_mass > 80 && h_fit_mass < 150)",
+        "dataset" : "resolved",
+        },
+    "gt5bloose_0PFfat_multiclass_rest"             : {
+        "sel" : "(nloosebtags > 5 && nprobejets == 0 && nmediumbtags < 6 && compareProb(ProbHHH, ProbQCD, ProbTT, ProbVJets, ProbVV) == 3)",
+        "label" : "Resolved 6L(exclude 6M) VJets+VV enriched",
+        "doSR" : "&& (h_fit_mass > 80 && h_fit_mass < 150)",
+        "doCR" : "&& !(h_fit_mass > 80 && h_fit_mass < 150)",
+        "dataset" : "resolved",
+        },   
+    "gt5bmedium_0PFfat_multiclass_HHH"              : {
+        "sel" : "(nmediumbtags > 5 && nprobejets == 0  && compareProb(ProbHHH, ProbQCD, ProbTT, ProbVJets, ProbVV) == 0)",
+        "label" : "Resolved 6M HHH enriched",
+        "doSR" : "&& (h_fit_mass > 80 && h_fit_mass < 150)",
+        "doCR" : "&& !(h_fit_mass > 80 && h_fit_mass < 150)",
+        "dataset" : "resolved",
+        },
+    "gt5bmedium_0PFfat_multiclass_QCD"              : {
+        "sel" : "(nmediumbtags > 5 && nprobejets == 0 && compareProb(ProbHHH, ProbQCD, ProbTT, ProbVJets, ProbVV) == 1)",
+        "label" : "Resolved 6M QCD enriched",
+        "doSR" : "&& (h_fit_mass > 80 && h_fit_mass < 150)",
+        "doCR" : "&& !(h_fit_mass > 80 && h_fit_mass < 150)",
+        "dataset" : "resolved",
+        },
+    "gt5bmedium_0PFfat_multiclass_TT"               : {
+        "sel" : "(nmediumbtags > 5 && nprobejets == 0 && compareProb(ProbHHH, ProbQCD, ProbTT, ProbVJets, ProbVV) == 2)",
+        "label" : "Resolved 6M TT enriched",
+        "doSR" : "&& (h_fit_mass > 80 && h_fit_mass < 150)",
+        "doCR" : "&& !(h_fit_mass > 80 && h_fit_mass < 150)",
+        "dataset" : "resolved",
+        },
+    "gt5bmedium_0PFfat_multiclass_rest"             : {
+        "sel" : "(nmediumbtags > 5 && nprobejets == 0 && compareProb(ProbHHH, ProbQCD, ProbTT, ProbVJets, ProbVV) == 3)",
+        "label" : "Resolved 6M VJets+VV enriched",
+        "doSR" : "&& (h_fit_mass > 80 && h_fit_mass < 150)",
+        "doCR" : "&& !(h_fit_mass > 80 && h_fit_mass < 150)",
+        "dataset" : "resolved",
+        },   
 
     
    
